@@ -1,0 +1,5 @@
+[Paths]
+path_data:/Users/anastasiaspileva/PycharmProjects/clustering/all_data/
+path_statistics:/Users/anastasiaspileva/PycharmProjects/clustering/statistics/
+path_result:/Users/anastasiaspileva/PycharmProjects/clustering/result/
+path_visualization:/Users/anastasiaspileva/PycharmProjects/clustering/visualize_result/
