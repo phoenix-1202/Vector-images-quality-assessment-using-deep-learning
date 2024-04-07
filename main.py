@@ -21,7 +21,7 @@ import os
 warnings.filterwarnings('ignore')
 
 
-@task
+@task(description="get embs")
 def get_clip_results(path, path_bad_pics):
     """получила эмбеддинги картинок"""
     dict_embs = run_clip(path)
@@ -29,7 +29,7 @@ def get_clip_results(path, path_bad_pics):
     return dict_embs, dict_bad_embs
 
 
-@task
+@task(description="get texts")
 def get_blip_results(paths_of_pics) -> list[str]:
     """получила описания к картинкам"""
     blip_model = run_blip(paths_of_pics)
@@ -37,7 +37,7 @@ def get_blip_results(paths_of_pics) -> list[str]:
     return texts
 
 
-@task
+@task(description="clear data from dublicates")
 def clear_data(dict_embs, dict_bad_embs) -> Dict[str, Any]:
     """чистим данные от мусора"""
     dict_embs = drop_duplicates(dict_embs)
@@ -45,9 +45,9 @@ def clear_data(dict_embs, dict_bad_embs) -> Dict[str, Any]:
     return dict_embs
 
 
-@task
+@task(description="clusterization from different models")
 def run_clustering(similarity):
-    """" Получаем результаты HDBSCAN и KMEANS и выводим результаты в картинках"""
+    """ Получаем результаты HDBSCAN и KMEANS и выводим результаты в картинках"""
     hdbscan = run_hdbscan(similarity)
     visualize(hdbscan.best_model.labels_, similarity, path_result + 'hdbscan/distribution.png')
     pca_visualization(similarity, hdbscan.best_model.labels_, path_result + 'hdbscan/pca.png')
@@ -65,10 +65,18 @@ def run_clustering(similarity):
     else:
         return kmeans.best_model.labels_
 
+@task(description="rename pictures")
+def func_rename_pictures(path_dirty_pics):
+    rename_files(path_dirty_pics)
 
-@task
+
+@task(description="convert pictures to png")
+def func_convert_pictures(path_dirty_pics, path):
+    convert_to_png(path_dirty_pics, path)
+
+
 def zip_folder(folder_path, output_name) -> None:
-    """" Сохраняем результат: лейблы и эмбеддинги"""
+    """ Сохраняем результат: лейблы и эмбеддинги"""
     with zipfile.ZipFile(output_name, 'w') as zipf:
         for root, dirs, files in os.walk(folder_path):
             for file in files:
@@ -88,22 +96,22 @@ def copy_clear_images(path_images, clear_path) -> None:
 @flow()
 def start(path_data, path_result, path_statistics):
     # определяю пути
-    path_dirty_pics = path_data + 'svg_data/'
-    path_bad_pics = path_data + 'bad_data/'
-    path = path_data + 'png_data/'
-    clear_path = path_data + 'clear_png_data/'
+    path_dirty_pics = path_data + 'svg-pictures/'
+    path_bad_pics = path_data + 'bad-pictures/'
+    path = path_data + 'png-pictures/'
+    clear_path = path_data + 'clear-png-pictures/'
 
     # переименовываю и конвертирую картинки
-    rename_files(path_dirty_pics)
-    convert_to_png(path_dirty_pics, path)
+    #func_rename_pictures(path_dirty_pics)
+    #func_convert_pictures(path_dirty_pics, path)
 
     # чекаем распределение картинок
-    get_distribution(path, path_statistics + 'distribution_first')
+    #get_distribution(path, path_statistics + 'distribution_first')
 
     # нормализуем изображения
-    list_width, list_height = normalize_images(path, path_statistics + 'distribution_draft')
-    save_data(list_width, path_result + 'dimensions_pictures/list_width.pkl')
-    save_data(list_height, path_result + 'dimensions_pictures/list_height.pkl')
+    #list_width, list_height = normalize_images(path, path_statistics + 'distribution_draft')
+    #save_data(list_width, path_result + 'dimensions_pictures/list_width.pkl')
+    #save_data(list_height, path_result + 'dimensions_pictures/list_height.pkl')
 
     # получаем эмбеддинги
     dict_embs, dict_bad_embs = get_clip_results(path, path_bad_pics)
@@ -119,11 +127,11 @@ def start(path_data, path_result, path_statistics):
     clear_image_embs = read_files(path_result + 'embs/clear_embs.pkl')
 
     # заспукаем кластеризацию
-    keys = sorted(clear_image_embs.keys())
-    embeddings = [clear_image_embs[key].flatten() for key in keys]
-    similarity = cosine_similarity(embeddings, embeddings)
-    labels = run_clustering(similarity)
-    save_data(labels, path_result + 'best_labels.txt')
+    #keys = sorted(clear_image_embs.keys())
+    #embeddings = [clear_image_embs[key].flatten() for key in keys]
+    #similarity = cosine_similarity(embeddings, embeddings)
+    #labels = run_clustering(similarity)
+    #save_data(labels, path_result + 'best_labels.txt')
 
     # получаем описания к картинкам
     texts = run_blip(keys)
