@@ -1,7 +1,7 @@
 import cv2
 import os
 from visualization import visualize_distribution
-
+from tqdm import tqdm
 
 def get_distribution(input_directory, output_directory):
     list_width = []
@@ -24,7 +24,7 @@ def get_distribution(input_directory, output_directory):
 def normalize_images(input_directory, output_directory):
     list_width = []
     list_height = []
-    for filename in os.listdir(input_directory):
+    for filename in tqdm(os.listdir(input_directory), desc="Нормализовываем разрешение картинок"):
         path_file = os.path.join(input_directory, filename)
         input_image = cv2.imread(path_file)
 
