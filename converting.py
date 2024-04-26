@@ -1,35 +1,41 @@
-import os
-from PIL import Image
 import re
-from cairosvg import svg2png
 from tqdm import tqdm
+import os
+import multiprocessing
+# from cairosvg import svg2png
+import xml.etree.ElementTree
+
 
 def rename_files(input_directory):
-    i = 0
     for filename in os.listdir(input_directory):
-        new_name = re.sub('[\W_]', '', filename) + '.svg'  # Удаляем все символы, кроме букв и цифр
-        os.rename(os.path.join(input_directory, filename), os.path.join(input_directory, new_name))  # Переименовываем файл
-        #i += 1
-        #if os.path.isfile(os.path.join(input_directory, filename)):
-            #name, ext = os.path.splitext(filename)
-            #new_filename = f"image{i}" + ext
-            #os.rename(os.path.join(input_directory, filename), os.path.join(input_directory, new_filename))
+        new_name = re.sub('[\W_]', '', filename) + '.svg'
+        os.rename(os.path.join(input_directory, filename),
+                  os.path.join(input_directory, new_name))
 
 
-def convert_to_png(input_directory, output_directory):
-    for file in tqdm(os.listdir(input_directory), desc="Конвертируем картинки в png формат"):
-        input_path = os.path.join(input_directory, file)
-        filename = os.path.splitext(file)[0] + ".png"
-        output_path = os.path.join(output_directory, filename)
-        if input_path.endswith(".svg"):
-            #svg2png(url=input_path, write_to=output_path)
-            try:
-                svg2png(url=input_path, write_to=output_path)
-            except Exception:
-                continue
-        else:
-            try:
-                input_image = Image.open(input_path)
-                input_image.save(output_path, 'PNG')
-            except Exception:
-                continue
+def to_png(svg_file):
+    output_directory = './data/png-pictures/'
+    output_path = svg_file.replace('.svg', '.png')
+    output_path = os.path.basename(output_path)
+    png_file = os.path.join(output_directory, output_path)
+    if not os.path.exists(png_file):
+        try:
+            # svg2png(url=svg_file, write_to=png_file)
+            pass
+        except xml.etree.ElementTree.ParseError:
+            return
+
+
+def process_files_in_parallel(files):
+    num_processes = 60
+    pool = multiprocessing.Pool(processes=num_processes)
+    pool.map(to_png, files)
+    pool.close()
+    pool.join()
+
+
+def convert_to_png(input_directory):
+    svg_files = [os.path.join(input_directory, f) for f in
+                 tqdm(os.listdir(input_directory), desc="Конвертируем картинки в png формат") if
+                 f.endswith('.svg')]
+    process_files_in_parallel(svg_files)

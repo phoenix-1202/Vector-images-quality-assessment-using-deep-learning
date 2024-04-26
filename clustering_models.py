@@ -1,17 +1,18 @@
 from sklearn.metrics import silhouette_score
-from sklearn.cluster import KMeans, HDBSCAN
+from sklearn.cluster import KMeans
 import numpy as np
 from tqdm import tqdm
+import hdbscan
 
 
 class ModelHDBSCAN(object):
     def __init__(self, matrix_similar):
         self.matrix_similar = matrix_similar
-        self.best_model = HDBSCAN()
+        self.best_model = hdbscan.HDBSCAN()
         self.best_score = -1
 
     def one_hdbcan(self, min_cluster, min_sample) -> None:
-        hdb = HDBSCAN(min_cluster_size=min_cluster, min_samples=min_sample)
+        hdb = hdbscan.HDBSCAN(min_cluster_size=min_cluster, min_samples=min_sample)
         result = hdb.fit_predict(self.matrix_similar)
         try:
             sil_score = silhouette_score(self.matrix_similar, result)

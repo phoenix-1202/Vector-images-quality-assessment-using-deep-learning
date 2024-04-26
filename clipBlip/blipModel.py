@@ -1,5 +1,6 @@
 from transformers import AutoProcessor, Blip2ForConditionalGeneration
 import torch
+torch.cuda.empty_cache()
 from PIL import Image
 from tqdm import tqdm
 
@@ -7,7 +8,6 @@ from tqdm import tqdm
 class BlipModel(object):
 
     def __init__(self):
-        self.paths = []
         self.processor = AutoProcessor.from_pretrained("Salesforce/blip2-opt-2.7b")
         self.modelBLIP = Blip2ForConditionalGeneration.from_pretrained("Salesforce/blip2-opt-2.7b")
         self.texts = []
@@ -16,7 +16,7 @@ class BlipModel(object):
         self.texts = []
         device = "cuda" if torch.cuda.is_available() else "cpu"
         self.modelBLIP.to(device)
-        for filename in tqdm(self.paths, desc="Генерим описания"):
+        for filename in tqdm(paths, desc="Генерим описания"):
             image = Image.open(filename).convert('RGB')
             inputs = self.processor(image, return_tensors="pt").to(device, torch.float16)
             generated_ids = self.modelBLIP.generate(**inputs, max_new_tokens=7)
@@ -27,6 +27,6 @@ class BlipModel(object):
 
 
 def run_blip(paths):
-    print("run blip")
     model_blip = BlipModel()
-    return model_blip.get_texts(paths)
+    model_blip.get_texts(paths)
+    return model_blip.texts
