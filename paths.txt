@@ -1,0 +1,5 @@
+[Paths]
+path_data:./data/
+path_statistics:./statistics/
+path_result:./result/
+path_visualization:./visualize_result/
