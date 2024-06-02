@@ -44,7 +44,7 @@ class DataLoader(object):
                     torchvision.transforms.ToTensor(),
                     torchvision.transforms.Normalize(mean=(0.485, 0.456, 0.406),
                                                      std=(0.229, 0.224, 0.225))])
-        elif dataset == 'bid' or dataset == 'AGIQA':
+        elif dataset == 'bid' or dataset == 'AGIQA' or 'tolola_parsed_ds':
             if istrain:
                 transforms = torchvision.transforms.Compose([
                     torchvision.transforms.RandomHorizontalFlip(),
@@ -79,9 +79,13 @@ class DataLoader(object):
         elif dataset == 'tid2013':
             self.data = folders.TID2013Folder(
                 root=path, index=img_indx, transform=transforms, patch_num=patch_num)
-        elif  dataset == 'AGIQA':
+        elif dataset == 'AGIQA':
             csv_type = "train" if istrain else "test"
             self.data = folders.AGIQA_3kFolder(
+                root=path, index=img_indx, transform=transforms, patch_num=patch_num, csv_type=csv_type)
+        elif dataset == 'tolola_parsed_ds':
+            csv_type = "train" if istrain else "test"
+            self.data = folders.TolokaDatasetFolder(
                 root=path, index=img_indx, transform=transforms, patch_num=patch_num, csv_type=csv_type)
             
 

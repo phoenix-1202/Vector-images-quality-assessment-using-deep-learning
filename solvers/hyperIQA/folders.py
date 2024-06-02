@@ -211,6 +211,44 @@ class Koniq_10kFolder(data.Dataset):
         return length
     
     
+class TolokaDatasetFolder(data.Dataset):
+
+    def __init__(self, root, index, transform, patch_num, csv_type):
+        img_paths = []
+        mos_all = []
+        csv_file = os.path.join(root, f'dataframes/{csv_type}_data.csv')
+        with open(csv_file) as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                img_paths.append(row['img_path'])
+                mos = np.array(float(row['final_mos'])).astype(np.float32)
+                mos_all.append(mos)
+
+        sample = []
+        for i, item in enumerate(index):
+            for aug in range(patch_num):
+                sample.append((img_paths[item], mos_all[item]))
+
+        self.samples = sample
+        self.transform = transform
+
+    def __getitem__(self, index):
+        """
+        Args:
+            index (int): Index
+
+        Returns:
+            tuple: (sample, target) where target is class_index of the target class.
+        """
+        path, target = self.samples[index]
+        sample = pil_loader(path)
+        sample = self.transform(sample)
+        return sample, target
+
+    def __len__(self):
+        length = len(self.samples)
+        return length
+
 
 class AGIQA_3kFolder(data.Dataset):
 

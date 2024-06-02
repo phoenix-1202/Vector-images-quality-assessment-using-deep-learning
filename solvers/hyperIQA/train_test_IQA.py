@@ -18,10 +18,13 @@ def main(config):
         'livec': '/home/ssl/Database/ChallengeDB_release/ChallengeDB_release/',
         'koniq-10k': '/home/ssl/Database/koniq-10k/',
         'bid': '/home/ssl/Database/BID/',
-        'AGIQA': '/home/vaskers5/projects/datasets/agiqa'
+        'AGIQA': '/home/vaskers5/projects/datasets/agiqa',
+        'tolola_parsed_ds': '/home/jupyter-kazancev.danil7@wb-2ede4/projects/anti_spam/work/Vector-images-quality-assessment-using-deep-learning/solvers/hyperIQA'
     }
-    train_len = len(pd.read_csv("../datasets/agiqa/train_data.csv")) -1
-    test_len = len(pd.read_csv("../datasets/agiqa/test_data.csv")) -1
+    train_path, test_path = "dataframes/train_data.csv", "dataframes/test_data.csv"
+
+    train_len = len(pd.read_csv(train_path)) -1
+    test_len = len(pd.read_csv(test_path)) -1
     
     img_num = {
         'live': list(range(0, 29)),
@@ -30,7 +33,8 @@ def main(config):
         'livec': list(range(0, 1162)),
         'koniq-10k': list(range(0, 10073)),
         'bid': list(range(0, 586)),
-        'AGIQA': list(range(0, train_len)) # train 2683, test 299
+        'AGIQA': list(range(0, train_len)), # train 2683, test 299
+        'tolola_parsed_ds': list(range(0, train_len))
     }
     sel_num = img_num[config.dataset]
 
@@ -58,7 +62,7 @@ def main(config):
 
 
 if __name__ == '__main__':
-    # python train_test_IQA.py --dataset AGIQA
+    # python train_test_IQA.py --dataset tolola_parsed_ds --batch_size 192
     parser = argparse.ArgumentParser()
     parser.add_argument('--dataset', dest='dataset', type=str, default='livec', help='Support datasets: livec|koniq-10k|bid|live|csiq|tid2013')
     parser.add_argument('--train_patch_num', dest='train_patch_num', type=int, default=25, help='Number of sample patches from training image')
